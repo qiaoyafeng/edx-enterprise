@@ -22,7 +22,7 @@ django-countries==5.5     # via -c requirements/edx-platform-constraints.txt, -r
 django-crum==0.7.6        # via -c requirements/edx-platform-constraints.txt, -r requirements/base.in, edx-rbac
 django-fernet-fields==0.6  # via -c requirements/edx-platform-constraints.txt, -r requirements/base.in
 django-filter==2.3.0      # via -c requirements/edx-platform-constraints.txt, -r requirements/base.in
-django-ipware==2.1.0      # via -c requirements/edx-platform-constraints.txt, -r requirements/base.in
+django-ipware==3.0.1      # via -c requirements/edx-platform-constraints.txt, -r requirements/base.in
 django-model-utils==4.0.0  # via -c requirements/edx-platform-constraints.txt, -r requirements/base.in, edx-rbac
 django-multi-email-field==0.6.1  # via -r requirements/base.in
 django-object-actions==2.0.0  # via -r requirements/base.in

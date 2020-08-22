@@ -24,7 +24,7 @@ django-countries==5.5     # via -r requirements/test-master.txt
 django-crum==0.7.6        # via -r requirements/test-master.txt, edx-rbac
 django-fernet-fields==0.6  # via -r requirements/test-master.txt
 django-filter==2.3.0      # via -r requirements/test-master.txt
-django-ipware==2.1.0      # via -r requirements/test-master.txt
+django-ipware==3.0.1      # via -r requirements/test-master.txt
 django-model-utils==4.0.0  # via -r requirements/test-master.txt, edx-rbac
 django-multi-email-field==0.6.1  # via -r requirements/test-master.txt
 django-object-actions==2.0.0  # via -r requirements/test-master.txt

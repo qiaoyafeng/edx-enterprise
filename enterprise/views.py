@@ -11,7 +11,7 @@ from uuid import UUID
 import pytz
 import waffle
 from dateutil.parser import parse
-from ipware.ip import get_ip
+from ipware.ip import get_client_ip
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 from six.moves.urllib.parse import parse_qs, urlencode, urljoin, urlsplit, urlunsplit  # pylint: disable=import-error
@@ -1691,7 +1691,8 @@ class CourseEnrollmentView(NonAtomicView):
 
         """
         # Check to see if access to the course run is restricted for this user.
-        embargo_url = EmbargoApiClient.redirect_if_blocked([course_id], request.user, get_ip(request), request.path)
+        embargo_url = EmbargoApiClient.redirect_if_blocked(
+            [course_id], request.user, get_client_ip(request)[0], request.path)
         if embargo_url:
             return redirect(embargo_url)
 
@@ -2069,7 +2070,8 @@ class ProgramEnrollmentView(NonAtomicView):
         for course in program_details['courses']:
             for course_run in course['course_runs']:
                 course_run_ids.append(course_run['key'])
-        embargo_url = EmbargoApiClient.redirect_if_blocked(course_run_ids, request.user, get_ip(request), request.path)
+        embargo_url = EmbargoApiClient.redirect_if_blocked(
+            course_run_ids, request.user, get_client_ip(request)[0], request.path)
         if embargo_url:
             return redirect(embargo_url)
 
