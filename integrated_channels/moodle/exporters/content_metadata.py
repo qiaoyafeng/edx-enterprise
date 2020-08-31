@@ -16,9 +16,9 @@ class MoodleContentMetadataExporter(ContentMetadataExporter):
         Moodle implementation of ContentMetadataExporter.
     """
     DATA_TRANSFORM_MAPPING = {
-        'fullname': 'key',
+        'fullname': 'title',
         'shortname': 'key',
-        'idnumber': 'number',
+        'idnumber': 'key',
         'summary': 'description',
         'startdate': 'start',
         'enddate': 'end',
