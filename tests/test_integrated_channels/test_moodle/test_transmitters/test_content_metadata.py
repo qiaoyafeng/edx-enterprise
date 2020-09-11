@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Tests for the SAP SuccessFactors content metadata transmitter.
+Tests for the Moodle content metadata transmitter.
 """
 
 import unittest

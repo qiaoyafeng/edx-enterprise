@@ -107,13 +107,7 @@ class MoodleEnterpriseCustomerConfiguration(EnterpriseCustomerPluginConfiguratio
         return 'MOODLE'
 
     def get_content_metadata_exporter(self, user):
-        """
-        Return a ``MoodleContentMetadataExporter`` instance.
-        """
         return MoodleContentMetadataExporter(user, self)
 
     def get_content_metadata_transmitter(self):
-        """
-        Return a ``MoodleContentMetadataTransmitter`` instance.
-        """
         return MoodleContentMetadataTransmitter(self)

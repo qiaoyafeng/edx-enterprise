@@ -23,14 +23,21 @@ def moodle_request_wrapper(method):
         if not self.token:
             self.token = self._get_access_token()  # pylint: disable=protected-access
         response = method(self, *args, **kwargs)
-
-        body = response.json()
+        try:
+            body = response.json()
+        except AttributeError:
+            # Moodle spits back an entire HTML page if something is wrong in our URL format.
+            # This cannot be converted to JSON thus the above fails miserably.
+            # Moodle of course does not tell us what is wrong in any part of this HTML.
+            raise ClientError('Moodle API task "{method}" failed due to unknown error.'.format(
+                method=method.__name__))
         if isinstance(body, list):
             # On course creation (and ONLY course creation) success,
             # Moodle returns a list of JSON objects, because of course it does.
             # Otherwise, it fails instantly and returns actual JSON.
             return response
         error_code = body.get('errorcode')
+        warnings = body.get('warnings')
         if error_code and error_code == 'invalidtoken':
             self.token = self._get_access_token()  # pylint: disable=protected-access
             response = method(self, *args, **kwargs)
@@ -40,6 +47,16 @@ def moodle_request_wrapper(method):
                 '"{code}" and message: "{msg}" '.format(
                     method=method.__name__, code=error_code, msg=body.get('message')
                 )
+            )
+        elif warnings:
+            # More Moodle nonsense!
+            errors = []
+            for warning in warnings:
+                if warning.get('message'):
+                    errors.append(warning.get('message'))
+            raise ClientError(
+                'Moodle API Client Task "{method}" failed with the following error codes: '
+                '"{code}"'.format(method=method.__name__, code=errors)
             )
         return response
     return inner
@@ -130,10 +147,7 @@ class MoodleAPIClient(IntegratedChannelApiClient):
         }
         """
         serialized_data['wsfunction'] = 'core_course_create_courses'
-        response = self._post(
-            self.enterprise_configuration.moodle_base_url,
-            serialized_data
-        )
+        response = self._post(serialized_data)
         return response
 
     @moodle_request_wrapper
@@ -143,7 +157,7 @@ class MoodleAPIClient(IntegratedChannelApiClient):
                 moodle_course_id = self.get_course_id(serialized_data[key])
                 serialized_data[key.replace('shortname', 'id')] = moodle_course_id
         serialized_data['wsfunction'] = 'core_course_update_courses'
-        return self._post(self.enterprise_configuration.moodle_base_url, serialized_data)
+        return self._post(serialized_data)
 
     @moodle_request_wrapper
     def delete_content_metadata(self, serialized_data):
@@ -155,11 +169,13 @@ class MoodleAPIClient(IntegratedChannelApiClient):
         params = {
             'wsfunction': 'core_course_delete_courses',
         }
-        url = self.enterprise_configuration.moodle_base_url + \
-            '?{}'.format(urlencode(course_ids_to_delete))
-        return self._post(url, params)
+        url = '{url}{api_path}?{querystring}'.format(
+            url=self.enterprise_configuration.moodle_base_url,
+            api_path=self.MOODLE_API_PATH,
+            querystring=urlencode(course_ids_to_delete))
+        return self._post(params, url)
 
-    def _post(self, url, additional_params):
+    def _post(self, additional_params, method_url=None):
         """
         Compile common params and run request's post function
         """
@@ -168,11 +184,21 @@ class MoodleAPIClient(IntegratedChannelApiClient):
             'moodlewsrestformat': 'json',
         }
         params.update(additional_params)
-        response = requests.post(
-            url='{url}{api_path}?{querystring}'.format(
-                url=url, api_path=self.MOODLE_API_PATH, querystring=urlencode(params)
+        if method_url:
+            response = requests.post(
+                url='{url}&{querystring}'.format(
+                    url=method_url,
+                    querystring=urlencode(params)
+                )
             )
-        )
+        else:
+            response = requests.post(
+                url='{url}{api_path}?{querystring}'.format(
+                    url=method_url if method_url else self.enterprise_configuration.moodle_base_url,
+                    api_path=self.MOODLE_API_PATH,
+                    querystring=urlencode(params)
+                )
+            )
         return response
 
     def _get_access_token(self):

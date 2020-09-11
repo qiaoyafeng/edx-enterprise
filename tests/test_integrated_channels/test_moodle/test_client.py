@@ -82,14 +82,15 @@ class TestMoodleApiClient(unittest.TestCase):
         client.get_course_id = unittest.mock.MagicMock(name='_get_course_id')
         client.get_course_id.return_value = MOODLE_COURSE_ID
         client.update_content_metadata(SERIALIZED_DATA)
-        client._post.assert_called_once_with(self.moodle_base_url, expected_data)  # pylint: disable=protected-access
+        client._post.assert_called_once_with(expected_data)  # pylint: disable=protected-access
 
     def test_delete_content_metadata(self):
         """
         Test core logic for formatting a delete request to Moodle.
         """
         expected_data = {'wsfunction': 'core_course_delete_courses'}
-        expected_url = self.moodle_base_url + quote('?courseids[]={0}'.format(MOODLE_COURSE_ID), safe='?=')
+        expected_url = self.moodle_base_url + \
+            self.moodle_api_path + quote('?courseids[]={0}'.format(MOODLE_COURSE_ID), safe='?=')
 
         client = MoodleAPIClient(self.enterprise_config)
         client._post = unittest.mock.MagicMock(name='_post', return_value=SUCCESSFUL_RESPONSE)  # pylint: disable=protected-access
@@ -97,4 +98,4 @@ class TestMoodleApiClient(unittest.TestCase):
         client.get_course_id.return_value = MOODLE_COURSE_ID
         client.delete_content_metadata(SERIALIZED_DATA)
 
-        client._post.assert_called_once_with(expected_url, expected_data)  # pylint: disable=protected-access
+        client._post.assert_called_once_with(expected_data, expected_url)  # pylint: disable=protected-access

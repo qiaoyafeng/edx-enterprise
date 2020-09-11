@@ -11,4 +11,4 @@ class MoodleConfig(AppConfig):
     Configuration for the Enterprise Integrated Channel Moodle Django application.
     """
     name = 'integrated_channels.moodle'
-    verbose_name = "Enterprise Moodle Integration"
+    verbose_name = 'Enterprise Moodle Integration'
